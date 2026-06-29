@@ -3,1243 +3,530 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Игра на понижение — Путеводитель</title>
+<title>Анатомия краха — Игра на понижение</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-
-  :root {
-    --black: #0A0A0A;
-    --dark: #111111;
-    --card: #161616;
-    --border: #2a2a2a;
-    --gold: #C9A84C;
-    --gold-dim: #8a6f2e;
-    --red: #C0392B;
-    --green: #27AE60;
-    --white: #F0EDE6;
-    --muted: #888;
-    --ticker-bg: #0d0d0d;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: 'Inter', sans-serif;
-    overflow-x: hidden;
-  }
-
-  /* TICKER */
-  .ticker-wrap {
-    background: var(--ticker-bg);
-    border-bottom: 1px solid var(--gold-dim);
-    padding: 8px 0;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-  .ticker {
-    display: inline-block;
-    animation: ticker 30s linear infinite;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .ticker span.up { color: var(--green); }
-  .ticker span.down { color: var(--red); }
-  .ticker span.sym { color: var(--gold); margin-right: 4px; }
-  @keyframes ticker {
-    0% { transform: translateX(100vw); }
-    100% { transform: translateX(-100%); }
-  }
-
-  /* HERO */
-  .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 60px 24px;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: 
-      radial-gradient(ellipse 80% 60% at 50% 50%, rgba(201,168,76,0.07) 0%, transparent 70%),
-      repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(201,168,76,0.03) 60px),
-      repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(201,168,76,0.03) 60px);
-    pointer-events: none;
-  }
-  .hero-eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 24px;
-    opacity: 0.8;
-  }
-  .hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(40px, 8vw, 96px);
-    font-weight: 900;
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-    margin-bottom: 8px;
-  }
-  .hero h1 em {
-    font-style: italic;
-    color: var(--gold);
-    display: block;
-  }
-  .hero-sub {
-    font-size: 15px;
-    color: var(--muted);
-    max-width: 480px;
-    line-height: 1.6;
-    margin: 24px auto 0;
-  }
-  .hero-warning {
-    margin-top: 48px;
-    padding: 16px 28px;
-    border: 1px solid var(--gold-dim);
-    background: rgba(201,168,76,0.05);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--gold);
-    letter-spacing: 0.05em;
-  }
-  .scroll-hint {
-    position: absolute;
-    bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    color: var(--muted);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    animation: bounce 2s ease-in-out infinite;
-  }
-  @keyframes bounce {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(6px); }
-  }
-
-  /* SECTIONS */
-  .section {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 80px 24px;
-  }
-  .section-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.25em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(28px, 5vw, 48px);
-    font-weight: 700;
-    line-height: 1.1;
-    margin-bottom: 40px;
-  }
-
-  /* TERM CARDS */
-  .terms-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2px;
-    background: var(--border);
-  }
-  .term-card {
-    background: var(--card);
-    padding: 28px;
-    position: relative;
-    overflow: hidden;
-    transition: background 0.2s;
-  }
-  .term-card:hover { background: #1c1c1c; }
-  .term-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--gold);
-    transform: scaleX(0);
-    transition: transform 0.3s;
-    transform-origin: left;
-  }
-  .term-card:hover::before { transform: scaleX(1); }
-  .term-number {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--gold-dim);
-    margin-bottom: 12px;
-    letter-spacing: 0.1em;
-  }
-  .term-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 6px;
-    color: var(--white);
-  }
-  .term-en {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--gold);
-    margin-bottom: 14px;
-    letter-spacing: 0.05em;
-  }
-  .term-def {
-    font-size: 13.5px;
-    line-height: 1.65;
-    color: #aaa;
-  }
-  .term-example {
-    margin-top: 14px;
-    padding: 10px 14px;
-    background: rgba(201,168,76,0.06);
-    border-left: 2px solid var(--gold-dim);
-    font-size: 12px;
-    color: #888;
-    line-height: 1.6;
-    font-style: italic;
-  }
-
-  /* DIVIDER */
-  .divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border), transparent);
-    margin: 0 24px;
-  }
-
-  /* DIAGRAMS */
-  .diagram-wrap {
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 32px;
-    margin-bottom: 24px;
-  }
-  .diagram-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    margin-bottom: 24px;
-    color: var(--white);
-  }
-
-  /* FLOW DIAGRAM */
-  .flow {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .flow-node {
-    background: var(--dark);
-    border: 1px solid var(--border);
-    padding: 14px 18px;
-    text-align: center;
-    min-width: 120px;
-    position: relative;
-  }
-  .flow-node .fn-label {
-    font-size: 11px;
-    color: var(--gold);
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.05em;
-    margin-bottom: 4px;
-  }
-  .flow-node .fn-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--white);
-  }
-  .flow-node .fn-sub {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 3px;
-  }
-  .flow-arrow {
-    width: 32px;
-    height: 2px;
-    background: var(--gold-dim);
-    position: relative;
-    flex-shrink: 0;
-  }
-  .flow-arrow::after {
-    content: '▶';
-    position: absolute;
-    right: -6px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--gold-dim);
-    font-size: 10px;
-  }
-  .flow-arrow.red-arrow { background: var(--red); }
-  .flow-arrow.red-arrow::after { color: var(--red); }
-
-  /* BAR CHART */
-  .bar-chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 16px;
-    height: 180px;
-    padding-bottom: 32px;
-    border-bottom: 1px solid var(--border);
-    position: relative;
-  }
-  .bar-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    height: 100%;
-    gap: 8px;
-  }
-  .bar {
-    width: 100%;
-    background: var(--gold-dim);
-    transition: all 0.3s;
-    position: relative;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-  }
-  .bar.red { background: var(--red); }
-  .bar.green { background: var(--green); }
-  .bar-val {
-    position: absolute;
-    top: -22px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--white);
-    white-space: nowrap;
-  }
-  .bar-label {
-    font-size: 11px;
-    color: var(--muted);
-    text-align: center;
-    line-height: 1.3;
-  }
-  .chart-note {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 12px;
-    font-style: italic;
-  }
-
-  /* PYRAMID */
-  .pyramid {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    margin: 20px 0;
-  }
-  .pyr-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 20px;
-    text-align: center;
-    transition: opacity 0.2s;
-  }
-  .pyr-row:hover { opacity: 0.85; }
-  .pyr-row .pr-title { font-size: 14px; font-weight: 500; }
-  .pyr-row .pr-sub { font-size: 11px; opacity: 0.75; margin-top: 2px; }
-
-  /* RISK METER */
-  .risk-meter {
-    display: flex;
-    gap: 3px;
-    height: 24px;
-    margin: 12px 0 6px;
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .risk-seg {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    font-family: 'JetBrains Mono', monospace;
-    color: rgba(255,255,255,0.6);
-    letter-spacing: 0.05em;
-  }
-
-  /* QUOTE */
-  .film-quote {
-    padding: 40px 24px;
-    text-align: center;
-    background: linear-gradient(180deg, var(--dark) 0%, var(--black) 100%);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-  .quote-text {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(18px, 3vw, 28px);
-    font-style: italic;
-    color: var(--white);
-    max-width: 700px;
-    margin: 0 auto 16px;
-    line-height: 1.4;
-  }
-  .quote-attr {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--gold);
-    letter-spacing: 0.1em;
-  }
-
-  /* CRISIS TIMELINE */
-  .timeline {
-    position: relative;
-    padding-left: 32px;
-  }
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 8px;
-    top: 0; bottom: 0;
-    width: 1px;
-    background: var(--border);
-  }
-  .tl-item {
-    position: relative;
-    margin-bottom: 32px;
-  }
-  .tl-dot {
-    position: absolute;
-    left: -28px;
-    top: 4px;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--gold-dim);
-    border: 2px solid var(--black);
-  }
-  .tl-dot.red { background: var(--red); }
-  .tl-date {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--gold);
-    margin-bottom: 4px;
-    letter-spacing: 0.05em;
-  }
-  .tl-title {
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--white);
-    margin-bottom: 4px;
-  }
-  .tl-text {
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  /* QUIZ */
-  #quiz-section {
-    background: var(--dark);
-    border-top: 1px solid var(--border);
-  }
-  .quiz-wrap {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 80px 24px;
-  }
-  .quiz-header {
-    text-align: center;
-    margin-bottom: 48px;
-  }
-  .quiz-header h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(28px, 5vw, 48px);
-    margin-bottom: 12px;
-  }
-  .quiz-header p {
-    color: var(--muted);
-    font-size: 14px;
-  }
-  .q-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 28px;
-    margin-bottom: 20px;
-  }
-  .q-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--gold);
-    letter-spacing: 0.15em;
-    margin-bottom: 10px;
-  }
-  .q-text {
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    margin-bottom: 18px;
-    color: var(--white);
-  }
-  .q-options {
-    display: grid;
-    gap: 8px;
-  }
-  .q-opt {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 16px;
-    background: var(--dark);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.15s;
-    font-size: 13.5px;
-    color: #ccc;
-    line-height: 1.4;
-    text-align: left;
-  }
-  .q-opt:hover { border-color: var(--gold-dim); color: var(--white); }
-  .q-opt.selected { border-color: var(--gold); background: rgba(201,168,76,0.08); color: var(--white); }
-  .q-opt.correct { border-color: var(--green); background: rgba(39,174,96,0.1); color: var(--white); }
-  .q-opt.wrong { border-color: var(--red); background: rgba(192,57,43,0.1); color: var(--white); }
-  .q-marker {
-    width: 20px; height: 20px;
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px;
-    flex-shrink: 0;
-    margin-top: 1px;
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--muted);
-  }
-  .q-opt.selected .q-marker { border-color: var(--gold); color: var(--gold); }
-  .q-opt.correct .q-marker { border-color: var(--green); color: var(--green); background: rgba(39,174,96,0.15); }
-  .q-opt.wrong .q-marker { border-color: var(--red); color: var(--red); background: rgba(192,57,43,0.15); }
-
-  .quiz-progress {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 32px;
-  }
-  .qp-seg {
-    flex: 1;
-    height: 3px;
-    background: var(--border);
-    transition: background 0.3s;
-  }
-  .qp-seg.done { background: var(--gold-dim); }
-  .qp-seg.correct { background: var(--green); }
-  .qp-seg.wrong { background: var(--red); }
-
-  .quiz-submit {
-    margin-top: 32px;
-    width: 100%;
-    padding: 18px;
-    background: var(--gold);
-    color: var(--black);
-    border: none;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: opacity 0.2s;
-  }
-  .quiz-submit:hover { opacity: 0.9; }
-  .quiz-submit:disabled { opacity: 0.3; cursor: not-allowed; }
-
-  /* RESULT */
-  .quiz-result {
-    text-align: center;
-    padding: 60px 24px;
-    display: none;
-  }
-  .result-score {
-    font-family: 'Playfair Display', serif;
-    font-size: 80px;
-    font-weight: 900;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-  .result-score.pass { color: var(--green); }
-  .result-score.fail { color: var(--red); }
-  .result-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    margin-bottom: 16px;
-  }
-  .result-text {
-    color: var(--muted);
-    font-size: 14px;
-    max-width: 440px;
-    margin: 0 auto 32px;
-    line-height: 1.7;
-  }
-  .result-btn {
-    padding: 16px 36px;
-    background: transparent;
-    border: 1px solid var(--gold);
-    color: var(--gold);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.2s;
-  }
-  .result-btn:hover { background: var(--gold); color: var(--black); }
-  .result-pass-icon {
-    font-size: 64px;
-    margin-bottom: 24px;
-  }
-  .wrong-list {
-    margin: 24px auto;
-    max-width: 460px;
-    text-align: left;
-    background: rgba(192,57,43,0.07);
-    border: 1px solid rgba(192,57,43,0.2);
-    padding: 20px;
-  }
-  .wrong-list-title {
-    font-size: 11px;
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--red);
-    letter-spacing: 0.1em;
-    margin-bottom: 12px;
-  }
-  .wrong-list-item {
-    font-size: 13px;
-    color: #aaa;
-    margin-bottom: 8px;
-    line-height: 1.5;
-    padding-left: 16px;
-    position: relative;
-  }
-  .wrong-list-item::before {
-    content: '✗';
-    position: absolute;
-    left: 0;
-    color: var(--red);
-    font-size: 11px;
-  }
-
-  /* FOOTER */
-  footer {
-    text-align: center;
-    padding: 40px 24px;
-    border-top: 1px solid var(--border);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-  }
-
-  @media (max-width: 600px) {
-    .terms-grid { grid-template-columns: 1fr; }
-    .flow { gap: 8px; }
-    .flow-arrow { transform: rotate(90deg); width: 20px; }
-  }
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+:root{--ink:#0E0E0E;--paper:#F5F0E8;--paper2:#EDE8DC;--rule:#C8BFA8;--rule-strong:#8A7F6A;--red:#B5251A;--green:#1A6B3A;--gold:#8A6A1A;--gold-light:#C9A84C;--muted:#5A5245;--accent-bg:#1A1510;}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.6;}
+.masthead{background:var(--ink);color:var(--paper);text-align:center;padding:28px 24px 20px;border-bottom:3px solid var(--gold-light);position:sticky;top:0;z-index:100;}
+.masthead-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.25em;color:var(--gold-light);text-transform:uppercase;margin-bottom:8px;}
+.masthead h1{font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,52px);font-weight:900;letter-spacing:-.02em;line-height:1;}
+.masthead h1 em{color:var(--gold-light);font-style:italic;}
+.masthead-sub{font-size:12px;color:#888;margin-top:10px;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;}
+.nav-pills{display:flex;justify-content:center;gap:0;margin-top:16px;flex-wrap:wrap;border-top:1px solid #333;padding-top:12px;}
+.nav-pill{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#888;letter-spacing:.1em;padding:4px 16px;border-right:1px solid #333;cursor:pointer;transition:color .15s;text-decoration:none;text-transform:uppercase;}
+.nav-pill:last-child{border-right:none;}.nav-pill:hover{color:var(--gold-light);}
+.ticker-bar{background:#1A1510;border-bottom:1px solid #333;padding:6px 0;overflow:hidden;white-space:nowrap;}
+.ticker-inner{display:inline-block;animation:sticker 35s linear infinite;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#555;}
+.t-sym{color:var(--gold-light);margin:0 4px 0 20px;}.t-up{color:#2ECC71;}.t-dn{color:#E74C3C;}
+@keyframes sticker{0%{transform:translateX(100vw);}100%{transform:translateX(-100%);}}
+.page{max-width:1100px;margin:0 auto;padding:0 20px;}
+.hero-grid{display:grid;grid-template-columns:2fr 1fr;gap:0;border-bottom:2px solid var(--ink);margin-top:32px;}
+.hero-main{padding:32px 32px 32px 0;border-right:1px solid var(--rule);}
+.hero-aside{padding:32px 0 32px 28px;}
+.section-flag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);border-bottom:2px solid var(--red);padding-bottom:4px;display:inline-block;margin-bottom:16px;}
+.hero-main h2{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,52px);font-weight:900;line-height:1.05;letter-spacing:-.02em;margin-bottom:16px;}
+.hero-main .lead{font-size:16px;line-height:1.7;color:var(--muted);border-left:3px solid var(--gold-light);padding-left:16px;margin-bottom:20px;font-style:italic;}
+.hero-main p{font-size:14px;line-height:1.75;color:#333;margin-bottom:12px;}
+.stat-box{border:1px solid var(--rule);padding:18px;margin-bottom:12px;background:var(--paper2);transition:border-color .2s;}
+.stat-box:hover{border-color:var(--gold-light);}
+.stat-num{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,42px);font-weight:900;line-height:1;color:var(--ink);}
+.stat-num.red{color:var(--red);}.stat-num.green{color:var(--green);}
+.stat-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em;margin-top:4px;text-transform:uppercase;}
+.stat-desc{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;}
+.sec-header{display:flex;align-items:baseline;gap:16px;padding:24px 0 16px;border-top:2px solid var(--ink);border-bottom:1px solid var(--rule);margin-bottom:24px;}
+.sec-header h2{font-family:'Playfair Display',serif;font-size:clamp(22px,3vw,36px);font-weight:700;letter-spacing:-.01em;}
+.sec-header .sec-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.1em;white-space:nowrap;}
+.terms-cols{column-count:2;column-gap:28px;column-rule:1px solid var(--rule);}
+.term-block{break-inside:avoid;margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid var(--rule);}
+.term-block:last-child{border-bottom:none;}
+.term-head{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;line-height:1.2;margin-bottom:2px;}
+.term-en{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;display:block;}
+.term-body{font-size:13.5px;line-height:1.7;color:#333;}
+.term-example{margin-top:10px;padding:10px 12px;background:var(--paper2);border-left:3px solid var(--gold-light);font-size:12px;color:var(--muted);line-height:1.6;}
+.term-example strong{color:var(--ink);}
+.case{background:var(--ink);color:var(--paper);padding:32px;margin-bottom:2px;position:relative;overflow:hidden;}
+.case::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold-light);}
+.case-flag{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.25em;color:var(--gold-light);text-transform:uppercase;margin-bottom:12px;}
+.case h3{font-family:'Playfair Display',serif;font-size:clamp(18px,2.5vw,28px);font-weight:700;line-height:1.2;margin-bottom:12px;}
+.case p.body{font-size:14px;line-height:1.75;color:#AAA;}
+.case-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:20px;}
+.case-col h4{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--gold-light);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #333;}
+.case-col p,.case-col li{font-size:13px;line-height:1.7;color:#BBB;margin-bottom:8px;}
+.case-col ul{padding-left:16px;}.case-col li{margin-bottom:6px;}
+.case-num{font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,56px);font-weight:900;color:var(--gold-light);line-height:1;}
+.case-num-label{font-size:11px;color:#666;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;margin-top:4px;}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px;}
+.data-table th{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--ink);padding:8px 12px;text-align:left;}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--rule);color:#333;line-height:1.5;}
+.data-table tr:hover td{background:var(--paper2);}
+.td-red{color:var(--red);font-family:'IBM Plex Mono',monospace;font-weight:500;}
+.td-green{color:var(--green);font-family:'IBM Plex Mono',monospace;font-weight:500;}
+.td-mono{font-family:'IBM Plex Mono',monospace;font-size:12px;}
+.diagram{background:var(--paper2);border:1px solid var(--rule);padding:28px;margin:24px 0;}
+.diagram h3{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--rule);}
+.flow-h{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;}
+.flow-box{flex:1;min-width:100px;border:1px solid var(--rule-strong);padding:14px 12px;text-align:center;background:var(--paper);}
+.flow-box .fb-tag{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.flow-box .fb-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3;}
+.flow-box .fb-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.flow-box.hl{background:var(--ink);border-color:var(--ink);}
+.flow-box.hl .fb-tag{color:var(--gold-light);}.flow-box.hl .fb-name{color:var(--paper);}.flow-box.hl .fb-sub{color:#888;}
+.flow-arr{width:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--rule-strong);font-size:16px;}
+.chart-wrap{margin:20px 0;}
+.chart-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.chart-label{width:80px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-align:right;flex-shrink:0;}
+.chart-bar-wrap{flex:1;background:var(--paper2);height:28px;position:relative;}
+.chart-bar{height:100%;display:flex;align-items:center;padding-left:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--paper);font-weight:500;}
+.bar-n{background:var(--rule-strong);}.bar-d{background:var(--red);}.bar-p{background:var(--green);}
+.pullquote{border-top:3px solid var(--ink);border-bottom:1px solid var(--rule);padding:24px 0;margin:32px 0;}
+.pullquote blockquote{font-family:'Playfair Display',serif;font-size:clamp(18px,2.5vw,26px);font-style:italic;line-height:1.4;color:var(--ink);}
+.pullquote cite{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:.05em;font-style:normal;}
+.tl-row{display:grid;grid-template-columns:100px 1fr;gap:20px;padding:20px 0;border-bottom:1px solid var(--rule);}
+.tl-row:last-child{border-bottom:none;}
+.tl-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.05em;padding-top:3px;}
+.tl-content h4{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:6px;}
+.tl-content p{font-size:13px;line-height:1.65;color:#444;}
+.tl-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:2px 8px;margin-top:6px;background:rgba(181,37,26,.08);color:var(--red);border:1px solid rgba(181,37,26,.2);}
+.tl-tag.g{background:rgba(26,107,58,.08);color:var(--green);border-color:rgba(26,107,58,.2);}
+.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;padding:32px 0;border-bottom:1px solid var(--rule);}
+.col3-item{border-right:1px solid var(--rule);padding-right:28px;}.col3-item:last-child{border-right:none;padding-right:0;}
+.russia-block{background:var(--paper2);border:1px solid var(--rule);border-top:3px solid var(--red);padding:28px;margin:24px 0;}
+.russia-block h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:16px;}
+#quiz{background:var(--ink);color:var(--paper);padding:60px 0;margin-top:48px;}
+.qi{max-width:800px;margin:0 auto;padding:0 24px;}
+.qh{text-align:center;margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid #333;}
+.qh h2{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,48px);font-weight:900;margin-bottom:12px;}
+.qh p{color:#666;font-size:14px;line-height:1.6;}
+.qblock{border:1px solid #2a2a2a;padding:24px;margin-bottom:16px;background:#111;}
+.qn{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--gold-light);text-transform:uppercase;margin-bottom:10px;}
+.qq{font-size:15px;font-weight:500;color:var(--paper);line-height:1.5;margin-bottom:16px;}
+.qopts{display:flex;flex-direction:column;gap:8px;}
+.qo{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:#0d0d0d;border:1px solid #2a2a2a;cursor:pointer;font-size:13px;color:#AAA;line-height:1.45;transition:all .15s;text-align:left;width:100%;}
+.qo:hover{border-color:#555;color:var(--paper);}
+.qo.sel{border-color:var(--gold-light);color:var(--paper);background:rgba(201,168,76,.06);}
+.qo.ok{border-color:#2ECC71;color:var(--paper);background:rgba(46,204,113,.08);}
+.qo.err{border-color:#E74C3C;color:var(--paper);background:rgba(231,76,60,.08);}
+.qmk{width:22px;height:22px;border:1px solid #333;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px;font-family:'IBM Plex Mono',monospace;color:#555;}
+.qo.sel .qmk{border-color:var(--gold-light);color:var(--gold-light);}
+.qo.ok .qmk{border-color:#2ECC71;color:#2ECC71;}.qo.err .qmk{border-color:#E74C3C;color:#E74C3C;}
+.qprog{display:flex;gap:3px;margin-bottom:32px;}
+.qps{flex:1;height:2px;background:#222;transition:background .3s;}
+.qps.done{background:#555;}.qps.ok{background:#2ECC71;}.qps.err{background:#E74C3C;}
+.qsubmit{width:100%;margin-top:28px;padding:18px;background:var(--gold-light);color:var(--ink);border:none;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:opacity .2s;}
+.qsubmit:hover{opacity:.88;}.qsubmit:disabled{opacity:.25;cursor:not-allowed;}
+.qres{display:none;text-align:center;padding:40px 20px;}
+.rscore{font-family:'Playfair Display',serif;font-size:80px;font-weight:900;line-height:1;margin-bottom:12px;}
+.rscore.pass{color:#2ECC71;}.rscore.fail{color:#E74C3C;}
+.qres h3{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:16px;color:var(--paper);}
+.qres p{color:#777;font-size:14px;max-width:480px;margin:0 auto 28px;line-height:1.7;}
+.ww{background:#0d0d0d;border:1px solid rgba(231,76,60,.2);padding:20px;margin:20px auto;max-width:520px;text-align:left;}
+.ww h4{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#E74C3C;letter-spacing:.15em;text-transform:uppercase;margin-bottom:12px;}
+.wi{font-size:12px;color:#888;padding:6px 0 6px 18px;border-bottom:1px solid #1a1a1a;position:relative;line-height:1.5;}
+.wi::before{content:'x';position:absolute;left:0;color:#E74C3C;font-size:11px;}
+.rbtn{padding:14px 32px;background:transparent;border:1px solid var(--gold-light);color:var(--gold-light);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.15em;cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:8px;}
+.rbtn:hover{background:var(--gold-light);color:var(--ink);}
+footer{background:var(--ink);border-top:1px solid #222;text-align:center;padding:28px 24px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#444;letter-spacing:.05em;}
+@media(max-width:700px){
+.hero-grid{grid-template-columns:1fr;}
+.hero-main{border-right:none;padding-right:0;border-bottom:1px solid var(--rule);padding-bottom:24px;}
+.hero-aside{padding-left:0;}
+.terms-cols{column-count:1;}
+.col3{grid-template-columns:1fr;}
+.col3-item{border-right:none;padding-right:0;border-bottom:1px solid var(--rule);padding-bottom:20px;}
+.case-grid{grid-template-columns:1fr;}
+.flow-h{flex-direction:column;}
+.flow-arr{height:20px;width:100%;justify-content:center;}
+.tl-row{grid-template-columns:70px 1fr;gap:10px;}
+}
 </style>
 </head>
 <body>
-
-<!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker">
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <span class="sym">MBS</span> <span class="down">▼ -34.7%</span> &nbsp;&nbsp;&nbsp;
-    <span class="sym">CDO</span> <span class="down">▼ -89.2%</span> &nbsp;&nbsp;&nbsp;
-    <span class="sym">LEHMAN</span> <span class="down">▼ -99.9%</span> &nbsp;&nbsp;&nbsp;
-    <span class="sym">ИПОТЕКА</span> <span class="down">▼ просроченные платежи +300%</span> &nbsp;&nbsp;&nbsp;
-    <span class="sym">CDS</span> <span class="up">▲ +4200%</span> &nbsp;&nbsp;&nbsp;
-    <span class="sym">GOLDMAN</span> <span class="up">▲ ставки на крах</span> &nbsp;&nbsp;&nbsp;
-    <span class="sym">ЖИЛИЩНЫЙ РЫНОК США</span> <span class="down">▼ -32% 2006–2011</span> &nbsp;&nbsp;&nbsp;
-    <span class="sym">AAA-РЕЙТИНГ</span> <span class="down">▼ оказался ложью</span> &nbsp;&nbsp;&nbsp;
-    <span class="sym">MBS</span> <span class="down">▼ -34.7%</span> &nbsp;&nbsp;&nbsp;
-    <span class="sym">CDO</span> <span class="down">▼ -89.2%</span>
+<div class="masthead">
+  <div class="masthead-eyebrow">Кино-неделя · День третий · Обязательное чтение перед просмотром</div>
+  <h1>Анатомия <em>краха</em></h1>
+  <div class="masthead-sub">Финансовый кризис 2008 · Реальные кейсы · Суммы в рублях · Версия 2.0</div>
+  <nav class="nav-pills">
+    <a class="nav-pill" href="#terms">Словарь</a>
+    <a class="nav-pill" href="#cases">Кейсы</a>
+    <a class="nav-pill" href="#machine">Схемы</a>
+    <a class="nav-pill" href="#russia">Россия</a>
+    <a class="nav-pill" href="#crash">Хронология</a>
+    <a class="nav-pill" href="#quiz">Тест</a>
+  </nav>
+</div>
+<div class="ticker-bar">
+  <div class="ticker-inner">
+    <span class="t-sym">LEHMAN BROTHERS</span><span class="t-dn">БАНКРОТ 15.09.2008</span>
+    <span class="t-sym">MBS</span><span class="t-dn">−89% ЗА 2 ГОДА</span>
+    <span class="t-sym">РУБЛЬ</span><span class="t-dn">23.40 → 36.40 / ДОЛЛАР</span>
+    <span class="t-sym">ММВБ</span><span class="t-dn">−67% В 2008</span>
+    <span class="t-sym">ЗОЛОТО</span><span class="t-up">+25% В КРИЗИС</span>
+    <span class="t-sym">CDS БЬЮРРИ</span><span class="t-up">+207% ДОХОДНОСТЬ</span>
+    <span class="t-sym">НЕФТЬ</span><span class="t-dn">$147 → $32 / БАРРЕЛЬ</span>
+    <span class="t-sym">LEHMAN BROTHERS</span><span class="t-dn">БАНКРОТ 15.09.2008</span>
   </div>
 </div>
 
-<!-- HERO -->
-<section class="hero">
-  <p class="hero-eyebrow">День 3 · Кино-неделя · Подготовка к просмотру</p>
-  <h1>
-    Игра
-    <em>на понижение</em>
-  </h1>
-  <p class="hero-sub">Всё что нужно знать о финансовом кризисе 2008 года прежде чем включить фильм. Читайте. Разберитесь. Пройдите тест.</p>
-  <div class="hero-warning">⚠ &nbsp; ПРЕДУПРЕЖДЕНИЕ: фильм основан на реальных событиях. Всё это действительно произошло.</div>
-  <div class="scroll-hint">
-    <span>ЛИСТАЙТЕ ВНИЗ</span>
-    <span>↓</span>
+<div class="page">
+
+<div class="hero-grid">
+  <div class="hero-main">
+    <span class="section-flag">Вводная статья</span>
+    <h2>Как весь мир поверил в ложь — и потерял триллионы</h2>
+    <p class="lead">В 2008 году рухнула финансовая система которую строили 30 лет. Несколько человек это предвидели. Остальные — нет. «Игра на понижение» рассказывает о тех кто оказался прав.</p>
+    <p>С 2000 по 2006 год цены на жильё в США выросли на 124%. Банки давали ипотеку всем: безработным, мигрантам, людям без документов — без проверки доходов. Эти кредиты упаковывали в ценные бумаги и продавали пенсионным фондам по всему миру с рейтингом «надёжно как золото».</p>
+    <p>Это была ложь. Когда миллионы американцев одновременно перестали платить по ипотекам — весь карточный домик рухнул за несколько месяцев. Мировой ВВП потерял эквивалент <strong>134 триллионов рублей</strong> в нынешних ценах.</p>
+    <p>Перед вами расширенный разбор с реальными кейсами, суммами в рублях и схемами. Прочитайте всё прежде чем включить фильм.</p>
   </div>
-</section>
-
-<!-- ТЕРМИНЫ -->
-<section class="section">
-  <p class="section-label">01 · Словарь</p>
-  <h2 class="section-title">Ключевые термины<br>которые нужно знать</h2>
-  <div class="terms-grid">
-
-    <div class="term-card">
-      <div class="term-number">ТЕРМИН 01</div>
-      <div class="term-name">Ипотека</div>
-      <div class="term-en">MORTGAGE</div>
-      <div class="term-def">Кредит на покупку недвижимости. Банк даёт деньги — вы покупаете дом и выплачиваете долг годами. Дом при этом служит залогом: не платишь — банк забирает.</div>
-      <div class="term-example">«Мы взяли ипотеку на 30 лет. Ежемесячный платёж — $1200»</div>
-    </div>
-
-    <div class="term-card">
-      <div class="term-number">ТЕРМИН 02</div>
-      <div class="term-name">Субстандартная ипотека</div>
-      <div class="term-en">SUBPRIME MORTGAGE</div>
-      <div class="term-def">Кредит выданный людям с плохой кредитной историей или без подтверждённого дохода. Высокий риск невозврата, но банки давали их всем подряд — зарабатывая на комиссиях прямо сейчас.</div>
-      <div class="term-example">Ипотеку давали стриппершам и мигрантам без документов — это показано в фильме буквально.</div>
-    </div>
-
-    <div class="term-card">
-      <div class="term-number">ТЕРМИН 03</div>
-      <div class="term-name">Ипотечные облигации</div>
-      <div class="term-en">MBS — MORTGAGE-BACKED SECURITIES</div>
-      <div class="term-def">Банки собирали тысячи ипотек в «пакеты» и продавали их как ценные бумаги. Инвесторы покупали право получать часть платежей по тысячам ипотек сразу.</div>
-      <div class="term-example">Представьте: тысяча кредитов сшита в один продукт и продана пенсионным фондам по всему миру.</div>
-    </div>
-
-    <div class="term-card">
-      <div class="term-number">ТЕРМИН 04</div>
-      <div class="term-name">Долговые обязательства</div>
-      <div class="term-en">CDO — COLLATERALIZED DEBT OBLIGATION</div>
-      <div class="term-def">Ещё более сложная упаковка: несколько пакетов MBS собирались снова в один продукт. Плохие ипотеки прятались внутрь вместе с хорошими — и весь пакет получал высший рейтинг.</div>
-      <div class="term-example">В фильме это объясняет Марго Робби в ванне с шампанским.</div>
-    </div>
-
-    <div class="term-card">
-      <div class="term-number">ТЕРМИН 05</div>
-      <div class="term-name">Кредитный своп</div>
-      <div class="term-en">CDS — CREDIT DEFAULT SWAP</div>
-      <div class="term-def">Страховка на случай дефолта по облигации. Герои фильма покупали CDS на ипотечные облигации — платили небольшую страховку каждый год, а когда рынок рухнул, получили огромные выплаты.</div>
-      <div class="term-example">Майкл Бьюрри купил CDS на $1,3 млрд. Когда всё рухнуло — заработал $2,69 млрд.</div>
-    </div>
-
-    <div class="term-card">
-      <div class="term-number">ТЕРМИН 06</div>
-      <div class="term-name">Короткая продажа</div>
-      <div class="term-en">SHORT SELLING</div>
-      <div class="term-def">Ставка на падение цены. Берёшь актив в долг, продаёшь сейчас по высокой цене, ждёшь падения, покупаешь дёшево и возвращаешь. Разница — твоя прибыль. Отсюда название фильма.</div>
-      <div class="term-example">«Играть на понижение» = шортить = зарабатывать на падении.</div>
-    </div>
-
-    <div class="term-card">
-      <div class="term-number">ТЕРМИН 07</div>
-      <div class="term-name">Кредитный рейтинг</div>
-      <div class="term-en">CREDIT RATING · AAA / AA / BBB</div>
-      <div class="term-def">Оценка надёжности финансового продукта. AAA — высший, «безопасно как гособлигации». В 2008 году агентства Moody's и S&P ставили AAA мусорным CDO — они получали деньги от банков, которые эти CDO создавали.</div>
-      <div class="term-example">Конфликт интересов: судья получает зарплату от подсудимого.</div>
-    </div>
-
-    <div class="term-card">
-      <div class="term-number">ТЕРМИН 08</div>
-      <div class="term-name">Кредитное плечо</div>
-      <div class="term-en">LEVERAGE</div>
-      <div class="term-def">Торговля на заёмные деньги. Банки работали с плечом 30:1 — на каждый свой доллар брали 30 в долг. Прибыль умножается, но и потери тоже: минус 3% реального капитала = банкротство.</div>
-      <div class="term-example">Lehman Brothers работал с плечом 31:1 перед крахом в 2008 году.</div>
-    </div>
-
-    <div class="term-card">
-      <div class="term-number">ТЕРМИН 09</div>
-      <div class="term-name">Пузырь</div>
-      <div class="term-en">BUBBLE</div>
-      <div class="term-def">Когда цены на актив растут не из-за реальной ценности, а потому что все ожидают роста. В 2000-е американцы верили что цены на жильё будут расти вечно. Это была ошибка.</div>
-      <div class="term-example">В 2006 средняя цена дома в США выросла на 124% за 10 лет. Потом упала на треть.</div>
-    </div>
-
-    <div class="term-card">
-      <div class="term-number">ТЕРМИН 10</div>
-      <div class="term-name">Дефолт</div>
-      <div class="term-en">DEFAULT</div>
-      <div class="term-def">Невыплата долга. Когда заёмщик перестаёт платить по кредиту — это дефолт. В 2008 году миллионы американцев одновременно перестали платить по ипотекам. Весь карточный домик рухнул.</div>
-      <div class="term-example">2,3 миллиона домов ушли под процедуру изъятия в 2008 году.</div>
-    </div>
-
+  <div class="hero-aside">
+    <div class="stat-box"><div class="stat-num red">134 трлн ₽</div><div class="stat-label">Потери мировой экономики</div><div class="stat-desc">Эквивалент в рублях по курсу 2024 г. Это 8 годовых ВВП России.</div></div>
+    <div class="stat-box"><div class="stat-num red">6 млн</div><div class="stat-label">Американцев потеряли дома</div><div class="stat-desc">Банки изъяли жильё за неуплату ипотеки у 6 миллионов семей.</div></div>
+    <div class="stat-box"><div class="stat-num green">+207%</div><div class="stat-label">Доходность ставки Бьюрри</div><div class="stat-desc">Вложил 36 млрд ₽ и получил 110 млрд ₽ прибыли за 2 года.</div></div>
+    <div class="stat-box"><div class="stat-num">0</div><div class="stat-label">Банкиров осуждено</div><div class="stat-desc">Ни один топ-менеджер крупного банка не получил реального срока.</div></div>
   </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- КАК ЭТО РАБОТАЛО -->
-<section class="section">
-  <p class="section-label">02 · Схемы</p>
-  <h2 class="section-title">Как работала<br>эта машина</h2>
-
-  <div class="diagram-wrap">
-    <div class="diagram-title">Как ипотека превращалась в облигацию</div>
-    <div class="flow">
-      <div class="flow-node">
-        <div class="fn-label">НАЧАЛО</div>
-        <div class="fn-name">Покупатель дома</div>
-        <div class="fn-sub">берёт ипотеку</div>
-      </div>
-      <div class="flow-arrow"></div>
-      <div class="flow-node">
-        <div class="fn-label">ШАГ 1</div>
-        <div class="fn-name">Банк</div>
-        <div class="fn-sub">выдаёт кредит</div>
-      </div>
-      <div class="flow-arrow"></div>
-      <div class="flow-node">
-        <div class="fn-label">ШАГ 2</div>
-        <div class="fn-name">1000 ипотек</div>
-        <div class="fn-sub">упакованы в MBS</div>
-      </div>
-      <div class="flow-arrow"></div>
-      <div class="flow-node">
-        <div class="fn-label">ШАГ 3</div>
-        <div class="fn-name">CDO</div>
-        <div class="fn-sub">MBS + MBS + MBS</div>
-      </div>
-      <div class="flow-arrow"></div>
-      <div class="flow-node">
-        <div class="fn-label">ИТОГ</div>
-        <div class="fn-name">Рейтинг AAA</div>
-        <div class="fn-sub">продано всему миру</div>
-      </div>
-    </div>
-    <p style="color:var(--muted);font-size:12px;margin-top:20px;text-align:center;">Каждый в цепочке зарабатывал комиссию прямо сейчас — и никто не нёс риск потом</p>
-  </div>
-
-  <div class="diagram-wrap">
-    <div class="diagram-title">Как герои фильма заработали на крахе</div>
-    <div class="flow">
-      <div class="flow-node">
-        <div class="fn-label">УВИДЕЛИ</div>
-        <div class="fn-name">Плохие ипотеки</div>
-        <div class="fn-sub">внутри CDO</div>
-      </div>
-      <div class="flow-arrow"></div>
-      <div class="flow-node">
-        <div class="fn-label">КУПИЛИ</div>
-        <div class="fn-name">CDS — страховку</div>
-        <div class="fn-sub">платили $10М/год</div>
-      </div>
-      <div class="flow-arrow red-arrow"></div>
-      <div class="flow-node">
-        <div class="fn-label">КРАХ</div>
-        <div class="fn-name">Рынок рухнул</div>
-        <div class="fn-sub">2007–2008</div>
-      </div>
-      <div class="flow-arrow"></div>
-      <div class="flow-node">
-        <div class="fn-label">ПРИБЫЛЬ</div>
-        <div class="fn-name">$2.69 млрд</div>
-        <div class="fn-sub">Бьюрри один</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="diagram-wrap">
-    <div class="diagram-title">Кредитный рейтинг: что значат буквы</div>
-    <div class="pyramid">
-      <div class="pyr-row" style="width:30%;background:rgba(39,174,96,0.18);border:1px solid rgba(39,174,96,0.3);">
-        <div><div class="pr-title" style="color:var(--green)">AAA</div><div class="pr-sub">Высший. «Безопасно»</div></div>
-      </div>
-      <div class="pyr-row" style="width:50%;background:rgba(39,174,96,0.10);border:1px solid rgba(39,174,96,0.2);">
-        <div><div class="pr-title" style="color:#5dade2">AA / A</div><div class="pr-sub">Надёжно. Низкий риск</div></div>
-      </div>
-      <div class="pyr-row" style="width:70%;background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.2);">
-        <div><div class="pr-title" style="color:var(--gold)">BBB</div><div class="pr-sub">Приемлемо. Есть риск</div></div>
-      </div>
-      <div class="pyr-row" style="width:90%;background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.2);">
-        <div><div class="pr-title" style="color:var(--red)">BB и ниже → мусор</div><div class="pr-sub">Высокий риск. Junk bonds</div></div>
-      </div>
-    </div>
-    <p style="color:var(--muted);font-size:12px;margin-top:8px;text-align:center;">В 2008 году CDO из мусорных ипотек получали AAA. Агентствам платили банки, создававшие эти CDO.</p>
-  </div>
-
-  <div class="diagram-wrap">
-    <div class="diagram-title">Рост просроченных ипотек 2003–2009</div>
-    <div class="bar-chart">
-      <div class="bar-col">
-        <div class="bar" style="height:12%">
-          <span class="bar-val">2%</span>
-        </div>
-        <div class="bar-label">2003</div>
-      </div>
-      <div class="bar-col">
-        <div class="bar" style="height:14%">
-          <span class="bar-val">2.5%</span>
-        </div>
-        <div class="bar-label">2004</div>
-      </div>
-      <div class="bar-col">
-        <div class="bar" style="height:17%">
-          <span class="bar-val">3%</span>
-        </div>
-        <div class="bar-label">2005</div>
-      </div>
-      <div class="bar-col">
-        <div class="bar" style="height:25%">
-          <span class="bar-val">4.5%</span>
-        </div>
-        <div class="bar-label">2006</div>
-      </div>
-      <div class="bar-col">
-        <div class="bar red" style="height:42%">
-          <span class="bar-val">7.5%</span>
-        </div>
-        <div class="bar-label">2007</div>
-      </div>
-      <div class="bar-col">
-        <div class="bar red" style="height:72%">
-          <span class="bar-val">12.5%</span>
-        </div>
-        <div class="bar-label">2008</div>
-      </div>
-      <div class="bar-col">
-        <div class="bar red" style="height:100%">
-          <span class="bar-val">16.7%</span>
-        </div>
-        <div class="bar-label">2009</div>
-      </div>
-    </div>
-    <p class="chart-note">Каждый 6-й ипотечный кредит в США просрочен. Именно это и предсказывали герои фильма.</p>
-  </div>
-</section>
-
-<!-- ЦИТАТА -->
-<div class="film-quote">
-  <p class="quote-text">«Каждый раз, когда тебе кажется, что рынок сошёл с ума, ты вспоминаешь: рынок может оставаться иррациональным дольше, чем ты платёжеспособным»</p>
-  <p class="quote-attr">— Джон Мейнард Кейнс (цитируется в фильме)</p>
 </div>
 
-<!-- ХРОНОЛОГИЯ -->
-<section class="section">
-  <p class="section-label">03 · История</p>
-  <h2 class="section-title">Как всё рухнуло:<br>хронология кризиса</h2>
-  <div class="timeline">
-    <div class="tl-item">
-      <div class="tl-dot"></div>
-      <div class="tl-date">2000–2005</div>
-      <div class="tl-title">Пузырь надувается</div>
-      <div class="tl-text">Цены на жильё растут каждый год. Банки выдают ипотеки всем подряд — доход не проверяется. «Дом всегда растёт в цене» — общее убеждение.</div>
+<div id="terms" style="padding-top:40px;">
+  <div class="sec-header"><span class="sec-num">РАЗДЕЛ I</span><h2>Словарь: 12 ключевых терминов</h2></div>
+  <div class="terms-cols">
+
+    <div class="term-block">
+      <div class="term-head">Ипотека</div><span class="term-en">MORTGAGE</span>
+      <div class="term-body">Кредит на покупку недвижимости. Банк даёт деньги — вы покупаете дом и выплачиваете долг ежемесячно 15–30 лет. Дом служит залогом: не платите — банк его забирает через суд.<br><br>Ставка бывает фиксированной (одинакова всё время) и плавающей (меняется вслед за рынком). В 2005–2006 банки предлагали «тизерные» ставки: первые 2 года 1–2%, потом резкий скачок до 8–10%. Большинство заёмщиков не понимали этого условия.</div>
+      <div class="term-example"><strong>В рублях:</strong> средняя ипотека в США в 2006 г. — $280 000 или <strong>~7,5 млн ₽</strong>. Ежемесячный платёж — около 50 000 ₽. При плавающей ставке через 2 года вырастал до 90 000 ₽.</div>
     </div>
-    <div class="tl-item">
-      <div class="tl-dot"></div>
-      <div class="tl-date">2005</div>
-      <div class="tl-title">Майкл Бьюрри видит угрозу</div>
-      <div class="tl-text">Аналитик с одним глазом читает тысячи ипотечных договоров. Видит: большинство выданы людям без возможности платить. Покупает CDS на $1.3 млрд.</div>
+
+    <div class="term-block">
+      <div class="term-head">Субстандартная ипотека</div><span class="term-en">SUBPRIME MORTGAGE</span>
+      <div class="term-body">Кредит для заёмщиков с плохой кредитной историей или без подтверждения дохода вообще. В 2003–2006 банки намеренно снижали требования — им нужно было как можно больше кредитов для упаковки в MBS.<br><br>Появились NINJA-кредиты: No Income, No Job, No Assets — ипотека людям буквально без дохода, работы и имущества.</div>
+      <div class="term-example"><strong>В фильме:</strong> риелтор рассказывает что выдал ипотеку стрипперше сразу на 5 домов. Она зарабатывала $500 в неделю — <strong>~1 340 ₽ в день</strong> — и брала кредиты на миллионы.</div>
     </div>
-    <div class="tl-item">
-      <div class="tl-dot"></div>
-      <div class="tl-date">2006</div>
-      <div class="tl-title">Ставки делают другие</div>
-      <div class="tl-text">Трейдеры Марк Баум и Джаред Веннетт узнают о ставке Бьюрри. Едут во Флориду — видят брошенные дома и безумных риелторов. Присоединяются.</div>
+
+    <div class="term-block">
+      <div class="term-head">Ипотечные ценные бумаги</div><span class="term-en">MBS — MORTGAGE-BACKED SECURITIES</span>
+      <div class="term-body">Банк выдал 1000 ипотек — и вместо того чтобы ждать 30 лет, упаковал все платежи в одну «бумагу» и продал инвесторам. Инвестор получает поток ежемесячных платежей от тысяч заёмщиков сразу.<br><br>Для банка выгодно: он сразу получает деньги, риск перекладывает на покупателя. Именно это породило безответственность — банкам стало всё равно, сможет ли заёмщик платить.</div>
+      <div class="term-example"><strong>Размер рынка MBS в 2007 г.:</strong> $7,4 трлн — около <strong>200 трлн ₽</strong>. Покупатели: пенсионные фонды, страховые компании и банки 30 стран.</div>
     </div>
-    <div class="tl-item">
-      <div class="tl-dot red"></div>
-      <div class="tl-date">2007, начало</div>
-      <div class="tl-title">Первые трещины</div>
-      <div class="tl-text">Просрочки по ипотекам растут. Несколько мелких ипотечных компаний банкротятся. Крупные банки говорят: «всё под контролем».</div>
+
+    <div class="term-block">
+      <div class="term-head">Обеспеченные долговые обязательства</div><span class="term-en">CDO — COLLATERALIZED DEBT OBLIGATION</span>
+      <div class="term-body">Следующий уровень упаковки. Несколько MBS собирались вместе и делились на «транши» (уровни риска). Верхний транш получал деньги первым — ему давали рейтинг AAA. Нижний — принимал первые убытки.<br><br>Хитрость: плохие ипотечные бумаги прятали в середину CDO вместе с хорошими. Рейтинговые агентства не смотрели внутрь — ставили AAA на весь пакет.</div>
+      <div class="term-example"><strong>В фильме:</strong> шеф-повар объясняет CDO на примере несвежей рыбы: если смешать старую рыбу с новой и сделать суп — никто не заметит что внутри.</div>
     </div>
-    <div class="tl-item">
-      <div class="tl-dot red"></div>
-      <div class="tl-date">Сентябрь 2008</div>
-      <div class="tl-title">Крах Lehman Brothers</div>
-      <div class="tl-text">Четвёртый по величине инвестбанк США объявляет банкротство. Крупнейшее в истории. Мировые рынки обваливаются за дни.</div>
+
+    <div class="term-block">
+      <div class="term-head">Кредитный дефолтный своп</div><span class="term-en">CDS — CREDIT DEFAULT SWAP</span>
+      <div class="term-body">Страховой контракт: покупатель платит небольшую сумму каждый год, а в случае дефолта по облигации получает полную её стоимость. По сути это ставка на банкротство.<br><br>Бьюрри использовал CDS как ставку против ипотечного рынка. Платил «страховую премию» каждый год, а когда рынок рухнул — получил в сотни раз больше. Проблема: продавцы CDS (в том числе AIG) не имели денег для выплат.</div>
+      <div class="term-example"><strong>Ставка Бьюрри:</strong> заплатил около <strong>1,5 млрд ₽</strong> страховых премий за 2 года. Получил выплату <strong>110 млрд ₽</strong>. Доходность — 7 200%.</div>
     </div>
-    <div class="tl-item">
-      <div class="tl-dot red"></div>
-      <div class="tl-date">2008–2009</div>
-      <div class="tl-title">Последствия</div>
-      <div class="tl-text">8 миллионов потерянных рабочих мест. 6 миллионов потерянных домов. $700 млрд из кармана налогоплательщиков на спасение банков. Никто из банкиров не сел в тюрьму.</div>
+
+    <div class="term-block">
+      <div class="term-head">Кредитный рейтинг</div><span class="term-en">CREDIT RATING · AAA → D</span>
+      <div class="term-body">Оценка вероятности дефолта по долговому инструменту. Выдаётся агентствами Moody's, S&P, Fitch. AAA — минимальный риск, D — уже дефолт.<br><br><strong>Конфликт интересов:</strong> агентствам платили сами банки чьи продукты они оценивали. В 2006–2007 годах 83% CDO из субстандартных ипотек получили рейтинг AAA.</div>
+      <div class="term-example">Аналогия: инспектор пожарной безопасности получает зарплату от завода который проверяет. Именно так работали рейтинговые агентства.</div>
+    </div>
+
+    <div class="term-block">
+      <div class="term-head">Короткая продажа</div><span class="term-en">SHORT SELLING</span>
+      <div class="term-body">Способ заработать на падении цены. Берёте актив в долг у брокера, продаёте сейчас по высокой цене. Ждёте падения, покупаете дёшево, возвращаете брокеру. Разница — ваша прибыль.<br><br>Риск: если цена растёт — убытки не ограничены. Именно поэтому инвесторы долго сомневались: можно ли шортить весь ипотечный рынок США? Казалось безумием.</div>
+      <div class="term-example"><strong>Пример:</strong> взяли акцию в долг по 100 ₽, продали. Она упала до 30 ₽. Купили за 30 ₽, вернули. Прибыль: <strong>70 ₽</strong> с каждой акции.</div>
+    </div>
+
+    <div class="term-block">
+      <div class="term-head">Кредитное плечо</div><span class="term-en">LEVERAGE</span>
+      <div class="term-body">Торговля на заёмные деньги. Плечо 30:1 означает: на каждый свой рубль берёте 30 рублей в долг. Прибыль умножается в 30 раз. Убыток — тоже.<br><br>Lehman Brothers работал с плечом 31:1 накануне банкротства. Когда стоимость активов упала всего на 3% — весь собственный капитал обнулился и пошёл в минус.</div>
+      <div class="term-example"><strong>В рублях:</strong> у вас 100 млн ₽. Берёте в долг 3 млрд ₽. Покупаете активы на 3,1 млрд ₽. Они падают на 3% — вы теряете 93 млн ₽. Ваши деньги кончились. Банкротство.</div>
+    </div>
+
+    <div class="term-block">
+      <div class="term-head">Транш</div><span class="term-en">TRANCHE (фр. — ломоть)</span>
+      <div class="term-body">Уровень риска внутри CDO. Старший транш (Senior) получает деньги первым — рейтинг AAA. Средний (Mezzanine) — второй. Младший (Equity) — последним, принимает все первые убытки.<br><br>Банки придумали CDO-квадрат: упаковывали несколько CDO в новый CDO. Младший транш одного становился «сырьём» для другого, которому снова давали рейтинг AAA.</div>
+      <div class="term-example">Аналогия: многоквартирный дом. Жильцы 9-го этажа эвакуируются первыми при пожаре. Жильцы 1-го — последними.</div>
+    </div>
+
+    <div class="term-block">
+      <div class="term-head">Дефолт</div><span class="term-en">DEFAULT</span>
+      <div class="term-body">Неисполнение долгового обязательства. Личный: человек не платит ипотеку, банк забирает дом. Корпоративный: компания банкротится. Суверенный: государство не платит по долгам.<br><br>Россия пережила суверенный дефолт в 1998 году: государство отказалось платить по ГКО и заморозило вклады.</div>
+      <div class="term-example"><strong>2008 год:</strong> на пике кризиса просрочку допускал каждый шестой ипотечный заёмщик США. Суммарный долг под угрозой — около <strong>10 трлн ₽</strong>.</div>
+    </div>
+
+    <div class="term-block">
+      <div class="term-head">Финансовый пузырь</div><span class="term-en">ASSET BUBBLE</span>
+      <div class="term-body">Ситуация когда цена актива сильно превышает реальную стоимость из-за массовых ожиданий роста. Пока все верят — цена растёт. Когда вера исчезает — цена обваливается быстро.<br><br>Признаки: «цены никогда не упадут», кредиты берут чтобы купить актив который уже дорог. В 2006 году 40% всех купленных домов в США были инвестиционными — люди перепродавали их через год дороже.</div>
+      <div class="term-example"><strong>Известные пузыри:</strong> тюльпаны в Голландии 1637 г., dot-com 2000 г., жильё в США 2006 г., криптовалюты 2017 и 2021 гг.</div>
+    </div>
+
+    <div class="term-block">
+      <div class="term-head">Системный риск</div><span class="term-en">SYSTEMIC RISK</span>
+      <div class="term-body">Риск коллапса всей финансовой системы — когда банкротство одного игрока запускает цепную реакцию. Банки были настолько переплетены через CDS, MBS и CDO, что падение Lehman мгновенно ударило по всем.<br><br>«Too big to fail» (слишком большой чтобы упасть) — принцип по которому системно значимые банки спасают за счёт налогоплательщиков.</div>
+      <div class="term-example"><strong>AIG:</strong> спасли за $185 млрд (~5,5 трлн ₽) именно из-за системного риска — страховщик был должен выплаты по CDS всем крупным банкам мира.</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="pullquote">
+  <blockquote>«Рынок может оставаться иррациональным дольше, чем вы сможете оставаться платёжеспособным»</blockquote>
+  <cite>— Джон Мейнард Кейнс · именно этот риск едва не уничтожил Бьюрри до того как он оказался прав</cite>
+</div>
+
+<div id="cases" style="padding-top:40px;">
+  <div class="sec-header"><span class="sec-num">РАЗДЕЛ II</span><h2>Реальные кейсы: люди за цифрами</h2></div>
+
+  <div class="case" style="margin-bottom:2px;">
+    <div class="case-flag">Кейс 01 · Майкл Бьюрри · Scion Capital</div>
+    <h3>Невролог с одним глазом который увидел то что не видели все</h3>
+    <p class="body">Майкл Бьюрри — невролог, переквалифицировавшийся в управляющего хедж-фондом. В 2005 году начал вручную читать проспекты MBS — тысячи страниц мелкого текста которые никто не читал. Он обнаружил: большинство ипотек выданы с плавающей ставкой которая резко вырастет в 2007 году. Заёмщики не смогут платить. Система рухнет.</p>
+    <div class="case-grid">
+      <div class="case-col">
+        <h4>Хронология ставки</h4>
+        <ul>
+          <li>2005 — читает проспекты MBS вручную, видит проблему</li>
+          <li>Ноябрь 2005 — покупает первые CDS на $100 млн (~3 млрд ₽)</li>
+          <li>2006 — инвесторы требуют деньги назад: рынок продолжает расти</li>
+          <li>Бьюрри замораживает вывод средств — запрещает инвесторам уходить</li>
+          <li>Начало 2007 — первые просрочки, цена CDS растёт</li>
+          <li>Конец 2007 — полная выплата по CDS</li>
+        </ul>
+      </div>
+      <div class="case-col">
+        <h4>Итог</h4>
+        <div class="case-num">110 млрд ₽</div>
+        <div class="case-num-label">Прибыль фонда Scion Capital</div>
+        <p style="margin-top:12px;">Инвестировал: ~36 млрд ₽<br>Получил: ~146 млрд ₽<br>Доходность: <strong style="color:#C9A84C">+207% за 2 года</strong></p>
+        <p>Личная доля Бьюрри: около <strong>6 млрд ₽</strong>. Большую часть 2006 года инвесторы ненавидели его и требовали вернуть деньги.</p>
+      </div>
     </div>
   </div>
-</section>
 
-<!-- ТЕСТ -->
-<section id="quiz-section">
-  <div class="quiz-wrap">
-    <div class="quiz-header">
-      <p class="section-label" style="justify-content:center">04 · Проверка</p>
-      <h2>Тест перед просмотром</h2>
-      <p>10 вопросов. Нужно ответить правильно на все.<br>Провалили — читаете снова и проходите заново.</p>
+  <div class="case" style="background:#0d0d08;margin-bottom:2px;">
+    <div class="case-flag">Кейс 02 · Lehman Brothers · 15 сентября 2008</div>
+    <h3>158 лет истории — и 0 часов на спасение</h3>
+    <p class="body">15 сентября 2008 в 1:45 ночи Lehman Brothers подал заявление о банкротстве. Активы $691 млрд (~20 трлн ₽). Это крупнейшее корпоративное банкротство в истории. В отличие от Bear Stearns которого ФРС помогла продать JPMorgan, Lehman дали упасть — и это запустило глобальный цепной кризис.</p>
+    <div class="case-grid">
+      <div class="case-col">
+        <h4>Почему упал</h4>
+        <ul>
+          <li>Кредитное плечо 31:1 — на 1 ₽ своих 31 ₽ долга</li>
+          <li>Огромный портфель MBS и CDO которые обесценились</li>
+          <li>Казначейство США отказало в помощи</li>
+          <li>Barclays и Bank of America отказались покупать</li>
+          <li>Рейтинговые агентства понизили рейтинг в последний момент</li>
+        </ul>
+      </div>
+      <div class="case-col">
+        <h4>Последствия за 48 часов</h4>
+        <ul>
+          <li>Денежные рынки «замёрзли» — банки перестали давать деньги друг другу</li>
+          <li>Фонд Reserve Primary «сломал доллар» — впервые за 37 лет</li>
+          <li>Российский ММВБ упал на 17% за один день</li>
+          <li>Рубль начал слабеть: с 23,4 до 36,4 ₽ за доллар</li>
+        </ul>
+      </div>
     </div>
+  </div>
 
-    <div id="quiz-form">
-      <div class="quiz-progress" id="quiz-progress"></div>
-      <div id="questions-container"></div>
-      <button class="quiz-submit" id="submit-btn" onclick="checkQuiz()">ПРОВЕРИТЬ ОТВЕТЫ</button>
+  <div class="case" style="margin-bottom:24px;">
+    <div class="case-flag">Кейс 03 · AIG · «Слишком большой чтобы упасть»</div>
+    <h3>Страховая компания которая застраховала весь мир и не смогла заплатить</h3>
+    <p class="body">AIG — крупнейшая страховая компания мира — продала CDS на сотни миллиардов долларов. Маленькое подразделение в Лондоне (460 человек) продало «страховок» на $500 млрд. Когда рынок рухнул и все пришли за выплатами — у AIG не было денег. Если бы AIG упала — упали бы Goldman Sachs, Morgan Stanley, Deutsche Bank и ещё 20 крупнейших банков мира одновременно.</p>
+    <div class="case-grid">
+      <div class="case-col">
+        <h4>Спасение</h4>
+        <ul>
+          <li>Экстренный кредит ФРС: $85 млрд в первую ночь</li>
+          <li>Итого влито: $185 млрд (~5,5 трлн ₽)</li>
+          <li>Правительство получило 79,9% акций AIG</li>
+          <li>Долг выплачен к 2012 году</li>
+          <li>Налогоплательщики в итоге вышли в небольшой плюс</li>
+        </ul>
+      </div>
+      <div class="case-col">
+        <h4>Куда пошли деньги</h4>
+        <div class="case-num">5,5 трлн ₽</div>
+        <div class="case-num-label">Стоимость спасения AIG</div>
+        <p style="margin-top:12px;">Это треть годового федерального бюджета России на 2024 год. Деньги пошли напрямую на выплаты Goldman Sachs, Deutsche Bank и другим банкам — которые купили CDS у AIG.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="quiz-result" id="quiz-result"></div>
+<div id="machine" style="padding-top:40px;">
+  <div class="sec-header"><span class="sec-num">РАЗДЕЛ III</span><h2>Как работала машина: схемы</h2></div>
+
+  <div class="diagram">
+    <h3>Путь ипотеки от заёмщика до пенсионного фонда</h3>
+    <div class="flow-h">
+      <div class="flow-box"><div class="fb-tag">Старт</div><div class="fb-name">Покупатель дома</div><div class="fb-sub">Доход не проверяется</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box"><div class="fb-tag">Шаг 1</div><div class="fb-name">Банк-кредитор</div><div class="fb-sub">Продаёт кредит сразу. Риск — чужой.</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box"><div class="fb-tag">Шаг 2</div><div class="fb-name">MBS</div><div class="fb-sub">1000 ипотек в одном пакете</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box hl"><div class="fb-tag">Шаг 3</div><div class="fb-name">CDO</div><div class="fb-sub">Плохое прячется внутрь</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box"><div class="fb-tag">Шаг 4</div><div class="fb-name">Рейтинг AAA</div><div class="fb-sub">Конфликт интересов</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box"><div class="fb-tag">Итог</div><div class="fb-name">Пенсионный фонд</div><div class="fb-sub">Теряет всё в 2008</div></div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:16px;border-top:1px solid var(--rule);padding-top:12px;">Каждый участник цепочки зарабатывал комиссию прямо сейчас и перекладывал риск на следующего.</p>
+  </div>
+
+  <div class="diagram">
+    <h3>Рост просрочек по ипотекам США 2003–2009</h3>
+    <div class="chart-wrap">
+      <div class="chart-row"><div class="chart-label">2003</div><div class="chart-bar-wrap"><div class="chart-bar bar-n" style="width:10%">2%</div></div></div>
+      <div class="chart-row"><div class="chart-label">2004</div><div class="chart-bar-wrap"><div class="chart-bar bar-n" style="width:14%">2.8%</div></div></div>
+      <div class="chart-row"><div class="chart-label">2005</div><div class="chart-bar-wrap"><div class="chart-bar bar-n" style="width:17%">3.4%</div></div></div>
+      <div class="chart-row"><div class="chart-label">2006</div><div class="chart-bar-wrap"><div class="chart-bar bar-n" style="width:23%">4.6%</div></div></div>
+      <div class="chart-row"><div class="chart-label">2007</div><div class="chart-bar-wrap"><div class="chart-bar bar-d" style="width:38%">7.5% — первые тревоги</div></div></div>
+      <div class="chart-row"><div class="chart-label">2008</div><div class="chart-bar-wrap"><div class="chart-bar bar-d" style="width:63%">12.5% — Lehman</div></div></div>
+      <div class="chart-row"><div class="chart-label">2009</div><div class="chart-bar-wrap"><div class="chart-bar bar-d" style="width:85%">16.7% — пик кризиса</div></div></div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:12px;">Каждый шестой ипотечный кредит в США просрочен на пике. Именно это предсказал Бьюрри в 2005 году.</p>
+  </div>
+
+  <div class="diagram">
+    <h3>Куда пошли деньги спасения банков</h3>
+    <table class="data-table">
+      <thead><tr><th>Банк / Компания</th><th>Помощь государства</th><th>В рублях (~)</th><th>Статус</th></tr></thead>
+      <tbody>
+        <tr><td><strong>AIG</strong></td><td class="td-mono">$185 млрд</td><td class="td-red">5,5 трлн ₽</td><td class="td-green">Выжил, вернул долг</td></tr>
+        <tr><td><strong>Fannie Mae + Freddie Mac</strong></td><td class="td-mono">$187 млрд</td><td class="td-red">5,6 трлн ₽</td><td class="td-red">До сих пор под гос. контролем</td></tr>
+        <tr><td><strong>Bank of America</strong></td><td class="td-mono">$45 млрд</td><td class="td-red">1,35 трлн ₽</td><td class="td-green">Вернул с процентами</td></tr>
+        <tr><td><strong>Citigroup</strong></td><td class="td-mono">$45 млрд</td><td class="td-red">1,35 трлн ₽</td><td class="td-green">Вернул частично</td></tr>
+        <tr><td><strong>Goldman Sachs</strong></td><td class="td-mono">$10 млрд</td><td class="td-red">300 млрд ₽</td><td class="td-green">Вернул быстро</td></tr>
+        <tr><td><strong>Lehman Brothers</strong></td><td class="td-mono">$0</td><td class="td-mono">—</td><td class="td-red">Банкрот. Ликвидирован.</td></tr>
+        <tr style="font-weight:600;background:var(--paper2);"><td><strong>Итого TARP</strong></td><td class="td-mono">$700 млрд</td><td class="td-red">~21 трлн ₽</td><td class="td-green">Большая часть возвращена</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="russia" style="padding-top:40px;">
+  <div class="sec-header"><span class="sec-num">РАЗДЕЛ IV</span><h2>Россия и кризис 2008: что было у нас</h2></div>
+  <div class="russia-block">
+    <h3>«Остров стабильности» который затопило</h3>
+    <p style="font-size:14px;line-height:1.75;color:#444;margin-bottom:20px;">В 2008 году российские чиновники говорили что Россия — «остров стабильности» и мировой кризис нас не коснётся. Это оказалось неправдой. Падение нефти + отток капитала + кредитный коллапс ударили по стране сильнее чем по многим западным экономикам.</p>
+    <div class="col3">
+      <div class="col3-item"><div class="stat-num red" style="font-size:36px;">−67%</div><div class="stat-label">Падение ММВБ</div><p style="font-size:13px;color:var(--muted);margin-top:8px;">С мая по октябрь 2008. Один из крупнейших обвалов среди всех фондовых рынков мира.</p></div>
+      <div class="col3-item"><div class="stat-num red" style="font-size:36px;">23→36 ₽</div><div class="stat-label">Курс доллара</div><p style="font-size:13px;color:var(--muted);margin-top:8px;">Рубль обесценился на 56% к доллару. Вклады в рублях потеряли в покупательной способности.</p></div>
+      <div class="col3-item"><div class="stat-num red" style="font-size:36px;">−7.9%</div><div class="stat-label">ВВП России 2009</div><p style="font-size:13px;color:var(--muted);margin-top:8px;">Россия упала глубже чем США (−2.5%). Причина — нефть рухнула с $147 до $32 за баррель.</p></div>
+    </div>
+  </div>
+  <div>
+    <div class="tl-row"><div class="tl-date">Май 2008</div><div class="tl-content"><h4>Нефть на максимуме</h4><p>Brent $147/баррель. ММВБ на историческом максимуме. Всё кажется отличным.</p><span class="tl-tag g">Нефть: $147 = ~3 430 ₽/баррель</span></div></div>
+    <div class="tl-row"><div class="tl-date">Сент. 2008</div><div class="tl-content"><h4>Lehman падает — Россия закрывает биржи</h4><p>17–18 сентября торги на ММВБ и РТС приостановлены впервые в истории. За два дня рынок потерял 17%. Правительство выделило банкам 500 млрд ₽ экстренной ликвидности.</p><span class="tl-tag">Экстренная помощь банкам: 500 млрд ₽</span></div></div>
+    <div class="tl-row"><div class="tl-date">Окт. 2008</div><div class="tl-content"><h4>Рубль начинает падать</h4><p>ЦБ тратит золотовалютные резервы. Они сократились с $598 млрд до $383 млрд — минус $215 млрд за несколько месяцев.</p><span class="tl-tag">Потрачено резервов ЦБ: $215 млрд = ~6,4 трлн ₽</span></div></div>
+    <div class="tl-row"><div class="tl-date">Янв. 2009</div><div class="tl-content"><h4>«Плавная девальвация» завершена</h4><p>ЦБ опустил рубль до нового коридора. Импорт подорожал, реальные доходы населения упали. Банковской паники удалось избежать.</p><span class="tl-tag">Нефть на дне: $32 = ~1 160 ₽/баррель</span></div></div>
+  </div>
+</div>
+
+<div id="crash" style="padding-top:40px;padding-bottom:40px;">
+  <div class="sec-header"><span class="sec-num">РАЗДЕЛ V</span><h2>Хронология краха 2003–2009</h2></div>
+  <div>
+    <div class="tl-row"><div class="tl-date">2000–2003</div><div class="tl-content"><h4>ФРС снижает ставки</h4><p>После кризиса dot-com ставка снижена до 1% — исторического минимума. Дешёвые деньги ищут доходность. MBS с рейтингом AAA и доходностью 5–6% выглядят идеально.</p></div></div>
+    <div class="tl-row"><div class="tl-date">2003–2005</div><div class="tl-content"><h4>Машина разгоняется</h4><p>Банки упрощают требования к заёмщикам. Появляются NINJA-кредиты. Агентства штампуют рейтинги AAA. Цены на жильё растут ежегодно.</p><span class="tl-tag g">Цены на жильё: +15–20% в год</span></div></div>
+    <div class="tl-row"><div class="tl-date">Осень 2005</div><div class="tl-content"><h4>Бьюрри ставит против рынка</h4><p>Читает проспекты тысяч ипотек и видит катастрофу. Покупает первые CDS. Goldman Sachs охотно продаёт «страховку» — они уверены что он ошибается.</p><span class="tl-tag">Первая ставка: $100 млн = ~3 млрд ₽</span></div></div>
+    <div class="tl-row"><div class="tl-date">2006–2007</div><div class="tl-content"><h4>Первые трещины</h4><p>Плавающие ставки начинают расти. Мелкие ипотечные компании банкротятся. Все крупные банки продолжают говорить: «всё в порядке».</p><span class="tl-tag">New Century Financial банкрот: апрель 2007</span></div></div>
+    <div class="tl-row"><div class="tl-date">Март 2008</div><div class="tl-content"><h4>Bear Stearns продают за бесценок</h4><p>Пятый по величине инвестбанк фактически банкрот. ФРС организует продажу JPMorgan по $2 за акцию (год назад — $170). Многие думают: кризис позади.</p><span class="tl-tag">Цена продажи Bear Stearns: $240 млн = ~7 млрд ₽</span></div></div>
+    <div class="tl-row"><div class="tl-date">15.09.2008</div><div class="tl-content"><h4>Lehman Brothers. Конец.</h4><p>В 1:45 ночи подаётся заявление о банкротстве. Активы $691 млрд. Крупнейшее корпоративное банкротство в истории. Утром открываются биржи — паника по всему миру.</p><span class="tl-tag">Активы Lehman: $691 млрд = ~20 трлн ₽</span></div></div>
+    <div class="tl-row"><div class="tl-date">Окт. 2008</div><div class="tl-content"><h4>Конгресс принимает TARP</h4><p>После первого провального голосования (рынки упали на 7% за день) Конгресс принимает программу спасения банков на $700 млрд. Налогоплательщики оплачивают чужие ошибки.</p><span class="tl-tag">TARP: $700 млрд = ~21 трлн ₽</span></div></div>
+    <div class="tl-row"><div class="tl-date">2009–2012</div><div class="tl-content"><h4>Последствия</h4><p>8 млн потерянных рабочих мест. 6 млн потерянных домов. Мировой ВВП потерял ~$4 трлн. Ни один топ-менеджер крупного банка не осуждён. Бонусы на Уолл-стрит выплачивались уже в 2009 году.</p><span class="tl-tag">Осуждено топ-менеджеров: 0</span></div></div>
+  </div>
+</div>
+
+<div class="pullquote">
+  <blockquote>«Три вещи разрушают великие компании: высокомерие, бюрократия и самодовольство. Когда вы начинаете верить в собственную пропаганду — вы обречены»</blockquote>
+  <cite>— В 2007 году все крупные банки США верили своей собственной пропаганде</cite>
+</div>
+
+</div>
+
+<section id="quiz">
+  <div class="qi">
+    <div class="qh">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--gold-light);text-transform:uppercase;margin-bottom:16px;">РАЗДЕЛ VI · ФИНАЛЬНАЯ ПРОВЕРКА</div>
+      <h2>Тест: готовы ли вы смотреть фильм?</h2>
+      <p>10 вопросов повышенной сложности. Нужно ответить правильно на все.<br>Ошиблись — возвращаетесь к материалу и проходите заново.</p>
+    </div>
+    <div id="qprog" class="qprog"></div>
+    <div id="qcont"></div>
+    <button class="qsubmit" id="qbtn" onclick="submitQ()" disabled>ПРОВЕРИТЬ ОТВЕТЫ</button>
+    <div class="qres" id="qres"></div>
   </div>
 </section>
 
 <footer>
-  CINEMA WEEK · ДЕНЬ 3 · ИГРА НА ПОНИЖЕНИЕ · 2024<br>
-  <span style="opacity:0.4;margin-top:6px;display:block">Сделано с любовью. Основано на книге Майкла Льюиса «The Big Short»</span>
+  CINEMA WEEK · ДЕНЬ 3 · ИГРА НА ПОНИЖЕНИЕ · ВЕРСИЯ 2.0 — РАСШИРЕННАЯ<br>
+  <span style="opacity:.4;display:block;margin-top:6px;">Основано на книге Майкла Льюиса «The Big Short» (2010) и материалах Financial Crisis Inquiry Commission</span>
 </footer>
 
 <script>
-const questions = [
-  {
-    q: "Что такое субстандартная ипотека?",
-    opts: [
-      "Ипотека с очень низкой процентной ставкой",
-      "Кредит, выданный людям с плохой кредитной историей или без подтверждённого дохода",
-      "Государственная программа поддержки жилья",
-      "Ипотека на коммерческую недвижимость"
-    ],
-    correct: 1
-  },
-  {
-    q: "Что означает аббревиатура CDO?",
-    opts: [
-      "Центральный долговой орган (Central Debt Organization)",
-      "Кредитный дефолтный ордер",
-      "Обеспеченное долговое обязательство — пакет из нескольких MBS",
-      "Ипотечная облигация первого класса"
-    ],
-    correct: 2
-  },
-  {
-    q: "Как герои фильма зарабатывали деньги на кризисе?",
-    opts: [
-      "Покупали дешёвую недвижимость во Флориде",
-      "Продавали акции банков",
-      "Покупали CDS — страховки на падение ипотечных облигаций",
-      "Вкладывались в золото и нефть"
-    ],
-    correct: 2
-  },
-  {
-    q: "Почему рейтинговые агентства ставили CDO высший рейтинг AAA?",
-    opts: [
-      "Потому что CDO были действительно надёжными",
-      "Агентствам платили сами банки, создававшие эти CDO — конфликт интересов",
-      "Государство обязывало давать высокие рейтинги",
-      "Это была честная ошибка в расчётах"
-    ],
-    correct: 1
-  },
-  {
-    q: "Что такое «играть на понижение» (short selling)?",
-    opts: [
-      "Покупать актив по низкой цене и ждать роста",
-      "Снижать ставку по кредиту",
-      "Брать актив в долг, продавать сейчас дорого, покупать потом дёшево после падения",
-      "Продавать акции компании по номинальной стоимости"
-    ],
-    correct: 2
-  },
-  {
-    q: "Что такое MBS?",
-    opts: [
-      "Межбанковская система безопасности",
-      "Ценная бумага, обеспеченная пакетом ипотечных кредитов",
-      "Вид государственных облигаций США",
-      "Минимальный банковский стандарт"
-    ],
-    correct: 1
-  },
-  {
-    q: "Что такое кредитное плечо (leverage)?",
-    opts: [
-      "Комиссия брокера за сделку",
-      "Срок погашения кредита",
-      "Торговля на заёмные деньги — прибыль и убытки умножаются",
-      "Процентная ставка по ипотеке"
-    ],
-    correct: 2
-  },
-  {
-    q: "Что произошло в сентябре 2008 года?",
-    opts: [
-      "США ввели новые правила регулирования банков",
-      "Обанкротился Lehman Brothers — четвёртый по величине инвестбанк США",
-      "ФРС снизила ставку до нуля",
-      "Конгресс запретил субстандартные ипотеки"
-    ],
-    correct: 1
-  },
-  {
-    q: "Сколько домов потеряли американцы в результате кризиса 2008 года?",
-    opts: [
-      "Около 500 тысяч",
-      "Около 1 миллиона",
-      "Около 6 миллионов",
-      "Около 15 миллионов"
-    ],
-    correct: 2
-  },
-  {
-    q: "Что такое «пузырь» на финансовом рынке?",
-    opts: [
-      "Защитный механизм для вкладчиков",
-      "Вид страховки от дефолта",
-      "Ситуация когда цены растут из-за ожиданий роста, а не реальной ценности актива",
-      "Государственный фонд поддержки банков"
-    ],
-    correct: 2
-  }
+const QS=[
+  {q:"Майкл Бьюрри вложил около 36 млрд рублей в CDS против ипотечного рынка. Какова была его итоговая доходность?",opts:["Около 50% — неплохой результат для рискованной ставки","Около 207% — он утроил вложения фонда","Около 900% — рынок рухнул сильнее чем он ожидал","Он потерял деньги — рынок не упал достаточно быстро"],c:1},
+  {q:"Почему Lehman Brothers получил отказ в государственной помощи, тогда как AIG спасли за 5,5 трлн рублей?",opts:["Lehman был слишком маленьким — его активы не превышали 1 трлн ₽","AIG был государственным банком и обязан платить по закону","AIG был должен выплаты по CDS всем крупным банкам мира — его банкротство означало немедленный крах всей системы","Lehman сам отказался от помощи правительства"],c:2},
+  {q:"Что такое NINJA-кредит и почему он стал символом кризиса?",opts:["Секретный продукт японских инвестиционных банков с нулевой ставкой","No Income, No Job, No Assets — ипотека людям без дохода, работы и активов — воплощение безответственности банков","Кредит с плавающей ставкой замаскированной под фиксированную","Государственная программа субсидирования жилья для малоимущих"],c:1},
+  {q:"Чем CDO принципиально отличается от MBS по своей структуре?",opts:["CDO — это то же самое что MBS, просто более современное название","CDO выпускается только государственными ипотечными агентствами","CDO — это переупаковка нескольких MBS с разделением на транши риска; позволяло прятать плохие бумаги внутрь и получать рейтинг AAA на весь пакет","CDO не имеет кредитного рейтинга в отличие от MBS"],c:2},
+  {q:"Почему рейтинговые агентства ставили AAA мусорным CDO из субстандартных ипотек?",opts:["Они применяли устаревшие математические модели и искренне не понимали риска","Агентствам платили сами банки создававшие CDO — отказать в рейтинге значило потерять клиента","Государство законодательно обязывало давать высокие рейтинги для стимулирования рынка жилья","Они опирались на исторические данные — цены на жильё никогда раньше не падали одновременно по всей стране"],c:1},
+  {q:"Что произошло с Россией в 2008–2009 годах несмотря на то что российские банки не держали MBS?",opts:["Россия действительно осталась островом стабильности — кризис нас почти не коснулся","Упал только фондовый рынок, реальная экономика и зарплаты не пострадали","Нефть рухнула с $147 до $32, рубль обесценился с 23 до 36 ₽ за доллар, ММВБ упал на 67%, ВВП сократился на 7,9%","Кризис помог России — слабый доллар сделал нефтяной экспорт выгоднее"],c:2},
+  {q:"Что означает кредитное плечо 31:1 которое использовал Lehman Brothers?",opts:["Банк выдавал кредиты в 31 раз больше установленного законом норматива","На каждый рубль собственных денег банк брал 31 рубль в долг — падение стоимости активов на 3% уничтожало весь собственный капитал","Банк гарантировал доходность своих продуктов в размере 31% годовых клиентам","Банк мог проводить 31 крупную сделку в день без одобрения регулятора"],c:1},
+  {q:"Что значит «играть на понижение» применительно к ипотечному рынку в фильме?",opts:["Требовать снижения процентных ставок по ипотеке у банков через судебные иски","Скупать дешёвую недвижимость во Флориде в ожидании дальнейшего падения цен","Покупать CDS — страховки на дефолт по ипотечным облигациям — и получать огромную выплату когда они обесцениваются","Брать ипотеку в момент падения цен чтобы купить жильё по минимальной стоимости"],c:2},
+  {q:"Какова была судьба Bear Stearns в марте 2008 года и что это означало для рынка?",opts:["Bear Stearns успешно рекапитализировался и продолжил работу самостоятельно","Bear Stearns был куплен JPMorgan по $2 за акцию при поддержке ФРС — акция стоила $170 годом ранее; многие решили что кризис позади","Bear Stearns обанкротился как Lehman и запустил первую волну паники в марте 2008","Bear Stearns был национализирован и стал частью Федеральной резервной системы"],c:1},
+  {q:"Что такое системный риск и почему он объясняет спасение AIG на 5,5 трлн рублей?",opts:["Технический риск сбоя банковского ПО — AIG управлял IT-инфраструктурой всей системы","Риск цепного коллапса всей системы — AIG был должен выплаты по CDS всем крупным банкам мира одновременно, его банкротство уничтожило бы их все","AIG спасли ошибочно из-за политического давления — потом выяснилось что это не было необходимо","Системный риск — это риск для вкладчиков физических лиц, AIG спасли чтобы защитить пенсионные вклады американцев"],c:1}
 ];
 
-let userAnswers = new Array(10).fill(null);
-let quizSubmitted = false;
+let ans=new Array(10).fill(null),done=false;
 
-function renderQuiz() {
-  const container = document.getElementById('questions-container');
-  const progress = document.getElementById('quiz-progress');
-  container.innerHTML = '';
-  progress.innerHTML = '';
-  userAnswers = new Array(10).fill(null);
-  quizSubmitted = false;
-
-  questions.forEach((q, qi) => {
-    const seg = document.createElement('div');
-    seg.className = 'qp-seg';
-    seg.id = `seg-${qi}`;
-    progress.appendChild(seg);
-
-    const card = document.createElement('div');
-    card.className = 'q-card';
-    card.innerHTML = `
-      <div class="q-num">ВОПРОС ${String(qi+1).padStart(2,'0')} / 10</div>
-      <div class="q-text">${q.q}</div>
-      <div class="q-options" id="opts-${qi}">
-        ${q.opts.map((o,oi) => `
-          <div class="q-opt" onclick="selectOpt(${qi},${oi})" id="opt-${qi}-${oi}">
-            <div class="q-marker">${['A','B','C','D'][oi]}</div>
-            <span>${o}</span>
-          </div>
-        `).join('')}
-      </div>
-    `;
-    container.appendChild(card);
+function buildQ(){
+  ans=new Array(10).fill(null);done=false;
+  const c=document.getElementById('qcont'),p=document.getElementById('qprog'),r=document.getElementById('qres');
+  c.innerHTML='';p.innerHTML='';r.style.display='none';
+  document.getElementById('qbtn').style.display='block';
+  document.getElementById('qbtn').disabled=true;
+  QS.forEach((q,qi)=>{
+    const s=document.createElement('div');s.className='qps';s.id='ps'+qi;p.appendChild(s);
+    const b=document.createElement('div');b.className='qblock';
+    b.innerHTML=`<div class="qn">ВОПРОС ${String(qi+1).padStart(2,'0')} / 10</div><div class="qq">${q.q}</div><div class="qopts" id="opts${qi}">${q.opts.map((o,oi)=>`<button class="qo" onclick="pick(${qi},${oi})" id="o${qi}_${oi}"><div class="qmk">${['A','B','C','D'][oi]}</div><span>${o}</span></button>`).join('')}</div>`;
+    c.appendChild(b);
   });
-
-  document.getElementById('quiz-result').style.display = 'none';
-  document.getElementById('quiz-form').style.display = 'block';
-  document.getElementById('submit-btn').disabled = true;
 }
 
-function selectOpt(qi, oi) {
-  if (quizSubmitted) return;
-  userAnswers[qi] = oi;
-
-  const opts = document.querySelectorAll(`#opts-${qi} .q-opt`);
-  opts.forEach(o => o.classList.remove('selected'));
-  document.getElementById(`opt-${qi}-${oi}`).classList.add('selected');
-
-  document.getElementById(`seg-${qi}`).classList.add('done');
-
-  const allAnswered = userAnswers.every(a => a !== null);
-  document.getElementById('submit-btn').disabled = !allAnswered;
+function pick(qi,oi){
+  if(done)return;
+  ans[qi]=oi;
+  document.querySelectorAll('#opts'+qi+' .qo').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('o'+qi+'_'+oi).classList.add('sel');
+  document.getElementById('ps'+qi).classList.add('done');
+  document.getElementById('qbtn').disabled=ans.some(a=>a===null);
 }
 
-function checkQuiz() {
-  quizSubmitted = true;
-  let score = 0;
-  const wrongs = [];
-
-  questions.forEach((q, qi) => {
-    const userAns = userAnswers[qi];
-    const isCorrect = userAns === q.correct;
-
-    if (isCorrect) {
-      score++;
-      document.getElementById(`seg-${qi}`).className = 'qp-seg correct';
-      document.getElementById(`opt-${qi}-${userAns}`).classList.add('correct');
-    } else {
-      document.getElementById(`seg-${qi}`).className = 'qp-seg wrong';
-      if (userAns !== null) {
-        document.getElementById(`opt-${qi}-${userAns}`).classList.add('wrong');
-      }
-      document.getElementById(`opt-${qi}-${q.correct}`).classList.add('correct');
-      wrongs.push({ num: qi+1, text: q.q });
-    }
+function submitQ(){
+  done=true;let score=0;const wrongs=[];
+  QS.forEach((q,qi)=>{
+    const ua=ans[qi],ok=ua===q.c;
+    if(ok){score++;document.getElementById('ps'+qi).className='qps ok';document.getElementById('o'+qi+'_'+ua).classList.add('ok');}
+    else{document.getElementById('ps'+qi).className='qps err';if(ua!==null)document.getElementById('o'+qi+'_'+ua).classList.add('err');document.getElementById('o'+qi+'_'+q.c).classList.add('ok');wrongs.push({n:qi+1,t:q.q});}
   });
-
-  setTimeout(() => showResult(score, wrongs), 600);
+  setTimeout(()=>showRes(score,wrongs),700);
 }
 
-function showResult(score, wrongs) {
-  const resultDiv = document.getElementById('quiz-result');
-  const isPassed = score === 10;
-
-  if (isPassed) {
-    resultDiv.innerHTML = `
-      <div class="result-pass-icon">🎬</div>
-      <div class="result-score pass">${score}/10</div>
-      <div class="result-title">Вы готовы.</div>
-      <div class="result-text">
-        Отлично. Теперь вы знаете достаточно чтобы понять каждую сцену.<br><br>
-        <strong style="color:var(--white)">Приятного просмотра.</strong><br>
-        Помните: всё что вы видите на экране — произошло на самом деле.
-      </div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--gold);letter-spacing:0.1em;margin-top:24px;">
-        🥩 &nbsp;Пора открыть вино.
-      </div>
-    `;
+function showRes(score,wrongs){
+  const r=document.getElementById('qres');
+  document.getElementById('qbtn').style.display='none';
+  const pass=score===10;
+  if(pass){
+    r.innerHTML=`<div class="rscore pass">${score}/10</div><h3>Вы готовы к просмотру.</h3><p>Все ответы верны. Теперь вы понимаете механику краха лучше чем большинство людей которые работали на Уолл-стрит в 2007 году.</p><p style="margin-top:20px;color:#C9A84C;font-family:'IBM Plex Mono',monospace;font-size:20px;letter-spacing:.05em;">🥩 &nbsp; Приятного просмотра. Откройте вино.</p>`;
   } else {
-    const wrongsHtml = wrongs.map(w =>
-      `<div class="wrong-list-item">Вопрос ${w.num}: ${w.text}</div>`
-    ).join('');
-
-    resultDiv.innerHTML = `
-      <div class="result-score fail">${score}/10</div>
-      <div class="result-title">Вы не готовы к просмотру.</div>
-      <div class="result-text">
-        Правильных ответов: <strong style="color:var(--red)">${score} из 10</strong>.<br>
-        Нужно все 10. Вернитесь к материалу и пройдите тест заново.
-      </div>
-      <div class="wrong-list">
-        <div class="wrong-list-title">ОШИБКИ:</div>
-        ${wrongsHtml}
-      </div>
-      <button class="result-btn" onclick="retry()">↑ ВЕРНУТЬСЯ К НАЧАЛУ ТЕСТА</button>
-    `;
+    r.innerHTML=`<div class="rscore fail">${score}/10</div><h3>Вы не готовы к просмотру.</h3><p>Правильных ответов: <strong style="color:#E74C3C">${score} из 10</strong>. Нужно все десять. Вернитесь к материалу — особенно к разделам с ошибками — и пройдите заново.</p><div class="ww"><h4>Ошибки:</h4>${wrongs.map(w=>`<div class="wi">Вопрос ${w.n}: ${w.t}</div>`).join('')}</div><button class="rbtn" onclick="retry()">↑ ВЕРНУТЬСЯ К ТЕСТУ</button>`;
   }
-
-  document.getElementById('quiz-form').style.display = 'none';
-  resultDiv.style.display = 'block';
+  r.style.display='block';
 }
 
-function retry() {
-  document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
-  setTimeout(() => renderQuiz(), 400);
-}
-
-// Init
-renderQuiz();
+function retry(){document.getElementById('quiz').scrollIntoView({behavior:'smooth'});setTimeout(buildQ,400);}
+buildQ();
 </script>
-
 </body>
 </html>

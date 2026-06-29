@@ -518,7 +518,7 @@ function showRes(score,wrongs){
   document.getElementById('qbtn').style.display='none';
   const pass=score===10;
   if(pass){
-    r.innerHTML=`<div class="rscore pass">${score}/10</div><h3>Вы готовы к просмотру.</h3><p>Все ответы верны. Теперь вы понимаете механику краха лучше чем большинство людей которые работали на Уолл-стрит в 2007 году.</p><p style="margin-top:20px;color:#C9A84C;font-family:'IBM Plex Mono',monospace;font-size:20px;letter-spacing:.05em;">🥩 &nbsp; Приятного просмотра. Откройте вино.</p>`;
+    r.innerHTML=`<div class="rscore pass">${score}/10</div><h3>Урыыы ты готов к просмотру).</h3><p>Все ответы верны. Теперь ты понимаешь механику краха лучше чем большинство людей которые работали на Уолл-стрит в 2007 году.</p><p style="margin-top:20px;color:#C9A84C;font-family:'IBM Plex Mono',monospace;font-size:20px;letter-spacing:.05em;">🥩 &nbsp; Приятного просмотра, Димочка.</p>`;
   } else {
     r.innerHTML=`<div class="rscore fail">${score}/10</div><h3>Вы не готовы к просмотру.</h3><p>Правильных ответов: <strong style="color:#E74C3C">${score} из 10</strong>. Нужно все десять. Вернитесь к материалу — особенно к разделам с ошибками — и пройдите заново.</p><div class="ww"><h4>Ошибки:</h4>${wrongs.map(w=>`<div class="wi">Вопрос ${w.n}: ${w.t}</div>`).join('')}</div><button class="rbtn" onclick="retry()">↑ ВЕРНУТЬСЯ К ТЕСТУ</button>`;
   }
